@@ -75,8 +75,8 @@ func (c *ClientCache) GetLocalNonCacheClient() client.Client {
 	return c.noCacheClient
 }
 
-func (c *ClientCache) GetRemoteRestConfigsFromFile(filePath string) (*[]rest.Config, error) {
-	var configs []rest.Config
+func (c *ClientCache) GetRemoteRestConfigsFromFile(filePath string) ([]*rest.Config, error) {
+	var configs []*rest.Config
 	tokens, err := c.getAdminTokensFromFile(filePath)
 	if err != nil {
 		return &configs, err
@@ -89,11 +89,11 @@ func (c *ClientCache) GetRemoteRestConfigsFromFile(filePath string) (*[]rest.Con
 			TLSClientConfig: rest.TLSClientConfig{Insecure: true},
 		}
 		if singleConfig.Host == "" {
-			return &configs, errors.New("looks like i failed to load admin tokens - rest config host is empty")
+			return configs, errors.New("looks like i failed to load admin tokens - rest config host is empty")
 		}
-		configs = append(configs, singleConfig)
+		configs = append(configs, &singleConfig)
 	}
-	return &configs, nil
+	return configs, nil
 }
 
 func (c *ClientCache) getAdminTokensFromFile(filePath string) ([]FileTokenEntry, error) {

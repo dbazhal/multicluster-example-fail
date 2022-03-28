@@ -66,7 +66,7 @@ func (r *EnvconfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *EnvconfigReconciler) SetupWithManager(mgr ctrl.Manager, clusters []cluster.Cluster) error {
+func (r *EnvconfigReconciler) SetupWithManager(mgr ctrl.Manager, clusters []*cluster.Cluster) error {
 	mainController := ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Envconfig{})
 
@@ -85,8 +85,9 @@ func (r *EnvconfigReconciler) SetupWithManager(mgr ctrl.Manager, clusters []clus
 
 	mainController = mainController.Watches(&source.Kind{Type: &corev1.Namespace{}}, handler.EnqueueRequestsFromMapFunc(ecLabelFilter))
 
-	for _, c := range clusters {
-		mainController = mainController.Watches(source.NewKindWithCache(&corev1.Namespace{}, c.GetCache()),
+	for _, cP := range clusters {
+                cluster := *cP
+		mainController = mainController.Watches(source.NewKindWithCache(&corev1.Namespace{}, cluster.GetCache()),
 			handler.EnqueueRequestsFromMapFunc(ecLabelFilter))
 	}
 

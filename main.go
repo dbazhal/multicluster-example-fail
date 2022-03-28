@@ -130,11 +130,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	additionalClusters := make([]cluster.Cluster, 0)
-	for _, singleRestConfig := range *allAdminClientConfigs {
+	additionalClusters := make([]*cluster.Cluster, 0)
+	for _, singleRestConfig := range allAdminClientConfigs {
 		// Add cluster for each remote kubernetes to the manager
 		var singleCluster cluster.Cluster
-		singleCluster, err = cluster.New(&singleRestConfig, func(o *cluster.Options) {
+		singleCluster, err = cluster.New(singleRestConfig, func(o *cluster.Options) {
 			o.Scheme = scheme
 			o.NewCache = cache.BuilderWithOptions(cache.Options{SelectorsByObject: addProjectSelector(nil)})
 		})
@@ -153,7 +153,7 @@ func main() {
 		if smClient, err := clientCache.GetRemoteClient(singleRestConfig.Host); err == nil {
 			fmt.Printf("Got from cache host %s client %v\n", singleRestConfig.Host, smClient)
 		}
-		additionalClusters = append(additionalClusters, singleCluster)
+		additionalClusters = append(additionalClusters, &singleCluster)
 	}
 
 	if err = (&controllers.EnvconfigReconciler{
